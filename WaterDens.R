@@ -1,4 +1,4 @@
-x <- readLines("lastframe.pdb")
+x <- readLines("test.pdb")
 
 waters <- x[grepl("O   WAT", x) == TRUE]
 
@@ -19,8 +19,9 @@ row.names(watcord) <- NULL
 distances <- c()
 
 for (i in 1:length(watcord$V1)){
-  distances2 <- sqrt((watcord$V1[i]-watcord$V1)**2 + (watcord$V2[i]-watcord$V2)**2 + (watcord$V3[i]-watcord$V3)**2)
+  distances2 <- distance(watcord$V1[i],watcord$V1,watcord$V2[i],watcord$V2,watcord$V3[i],watcord$V3)
   distances[i] <- min(distances2[which(distances2!=0)])
 }
 
+## should be ~2.8 Å
 paste(mean(distances), "Å")
