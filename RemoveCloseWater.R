@@ -25,8 +25,19 @@ for (i in 1:length(pepcord$V1)){
   test <- append(test, solvent[1]+(which(distances2 < 3.0)))
 }
 
+test <- unique(test)
 
+comp <- grep("K+", a)
 
+for (i in test){
+  comp <- append(comp, (i-11)+grep(strsplit(strsplit(a[i], "WAT ")[[1]][2], "  ")[[1]][1], a[(i-10):(i+10)]))
+}
+
+newfile <- a[-c(comp)]
+
+writeLines(newfile, "newFile.pdb")
+
+#strsplit(strsplit(a[solvent[1]+1070], "WAT ")[[1]][2], "  ")[[1]][1]
 
 #coordinates <- function(x){
 #  return(regmatches(x, gregexpr("(+|-)\\d+\\.\\d{3}", x))[[1]][1:3])
@@ -48,35 +59,35 @@ for (i in 1:length(pepcord$V1)){
 #   }
 #   print(i)
 # }
-
-
-
-newfile <- a[-c(test)]
-
-writeLines(newfile, "newFile.pdb")
-
-b <- readLines("newFile.pdb")
-b_ <- b[grep("WAT", b)]
-fixfile <- grep("WAT", b)
-
-stringsplit <- function(x){
-  strsplit(x, " ")[[1]][5]
-}
-
-test <- sapply(b_, stringsplit, USE.NAMES = FALSE)
-
-water <- c("O", "H1", "H2")
-correct <- c()
-for (i in 1:length(test)){
-  if (test[i] == "O"){
-    if (sum(test[i:(i+2)] == water) == 3){
-      correct <- append(correct, i:(i+2))
-    }
-  }
-}
-indices <- append(1:fixfile[1], correct+57476)
-
-writeLines(b[indices], "_newFile.pdb")
+# 
+# 
+# 
+# newfile <- a[-c(test)]
+# 
+# writeLines(newfile, "newFile.pdb")
+# 
+# b <- readLines("newFile.pdb")
+# b_ <- b[grep("WAT", b)]
+# fixfile <- grep("WAT", b)
+# 
+# stringsplit <- function(x){
+#   strsplit(x, " ")[[1]][5]
+# }
+# 
+# test <- sapply(b_, stringsplit, USE.NAMES = FALSE)
+# 
+# water <- c("O", "H1", "H2")
+# correct <- c()
+# for (i in 1:length(test)){
+#   if (test[i] == "O"){
+#     if (sum(test[i:(i+2)] == water) == 3){
+#       correct <- append(correct, i:(i+2))
+#     }
+#   }
+# }
+# indices <- append(1:fixfile[1], correct+57476)
+# 
+# writeLines(b[indices], "_newFile.pdb")
 
 ## tester
 # trues <- c()
