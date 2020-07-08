@@ -24,37 +24,7 @@ for (x in files){
   hits <- readLines("hits")
 
   ## Check if there are any hits, process only if yes
-  if ((length(grep("Strand=", hits))) == 1){
-    
-    message("First loop")
-    
-    ## Extract start and stop position of alignment, find midpoint
-    start <- parse_number(hits[grep("Score =", hits) + 4])
-    
-    hits <- gsub(parse_number(hits[grep("Lambda", hits) - 6])[1], "", hits)
-    stop <- parse_number(hits[grep("Lambda", hits) - 6])[1]
-    
-    midpoint <- round(mean(c(start, stop)))
-
-    
-    ## Run ORFfinder
-    system(paste("ORFfinder -in orf.fasta -g 11 -s 0 -ml 30 -n true -b", midpoint-3000, "-e", midpoint+3000,  "-out orfs"))
-    
-    ## Read ORFs and calculate peptide properties
-    orfs <- readFasta("orfs")
-    
-    orfs <- cbind(orfs, "Charge" = charge(orfs$Sequence, pH = 7, pKscale = "Lehninger"))
-    orfs <- cbind(orfs, "CAH" = hydrophobicity(gsub("[KR]", "", orfs$Sequence), scale = "KyteDoolittle"))
-    orfs <- cbind(orfs, "Length" = nchar(orfs$Sequence))
-    
-    ## Append the amino acid sequence matching the criteria to a new file
-    for (peptide in 1:length(orfs$Header)){
-      if ((orfs$Charge[peptide] > 1.95) & (orfs$CAH[peptide] > 0) & (orfs$Length[peptide] %between% c(35, 60))){
-        cat(paste(">", orfs$Header[peptide]), file="BacMiningHits.txt", append=TRUE, sep = "\n")
-        cat(orfs$Sequence[peptide], file="BacMiningHits.txt", append=TRUE, sep = "\n")
-      }
-    }
-  if ((length(grep("Strand=", hits))) > 1){
+  if ((length(grep("Strand=", hits))) > 0){
     new <- append(grep("Strand=", hits), tail(grep("Sbjct", hits), n = 1))
     for (i in 1:(length(new)-1)){
       message("Second loop")
@@ -86,12 +56,12 @@ for (x in files){
         }
       }
     }
-    file.remove("orfs")
-    file.remove("orf.fasta")
   }
-}
-  file.remove("orfs")
-  file.remove("orf.fasta")
 }
 
 close(fileConn)
+
+## Remove duplicates
+results <- readFasta("BacMiningHits.txt")
+results <- unique(results)
+writeFasta(results, "BacMiningHits.fasta", width = 80)
