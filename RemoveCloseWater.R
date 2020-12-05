@@ -1,4 +1,4 @@
-a <- readLines("MemGak.pdb")
+a <- readLines("bilayer.pdb")
 aa <- c("ALA", "ARG", "ASN", "ASP", "CYS", "GLU", "GLN", "GLY", "HIS", "ILE", "LEU", "LYS", "MET", "PHE", "PRO", "SER", "THR", "TRP", "TYR", "VAL")
 
 distance <- function(x1,x2,y1,y2,z1,z2){
