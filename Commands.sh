@@ -43,4 +43,25 @@ nohup makeblastdb -in comb1.fasta -dbtype nucl -input_type fasta -out big_db1 -m
 
 tblastn -db big_db1 -num_threads 8 -query ${query_sequence} -out local_search1.txt
 
+# Make a list of all downloaded fasta sequence files with their full path:
+find ./Sequences/ -type f -name "*.fa" | xargs realpath > sequenceList.txt
+
+# Make a blast database of all files in chunks of 8219 files per database
+# Delete fasta files after database files have been created successfully
+start=1
+stop=8219
+
+for x in {1..56};
+do
+	sed -n ''${start}','${stop}'p' sequenceList.txt | xargs cat > /mnt/databases/Logan/combined.fasta
+	makeblastdb -in /mnt/databases/Logan/combined.fasta -dbtype nucl -input_type fasta -out /mnt/databases/Logan/blastdbs/comb_"${x}" -max_file_sz 3GB
+	if [ $? -ne 0 ]; then
+		echo "Error encountered, exiting loop."
+		break
+	fi
+	sed -n ''${start}','${stop}'p' sequenceList.txt | xargs rm
+	rm /mnt/databases/Logan/combined.fasta
+	start=$((start + 8219))
+	stop=$((stop + 8219))
+done
 
