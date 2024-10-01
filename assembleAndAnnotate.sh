@@ -1,5 +1,6 @@
 #!/bin/bash
 set -x
+source ~/miniconda3/bin/activate bakta
 cd "$(dirname "$0")"
 
 find ~+ ./ -name "*.fq.gz" > read_files.txt
@@ -15,9 +16,8 @@ do
 	sample_name=`echo $seq1 | sed -n 's|.*/\([^/]*\)/\1_.*|\1|p'`
 	echo ${sample_name}
 	fastp -i $seq1 -I $seq2 -o ${sample_name}_trimmed_1.fq.gz -O ${sample_name}_trimmed_2.fq.gz -q 20 --length_required 80 --cut_tail --cut_front --cut_mean_quality 20
+ 	rm fastp.*
 	~/Unicycler/unicycler-runner.py -1 ${sample_name}_trimmed_1.fq.gz -2 ${sample_name}_trimmed_2.fq.gz -t 16 -o ${sample_name}_assembled
-	conda activate bakta
 	bakta --db /home/thomas-ws/bakta/db --output ${sample_name}_annotation/ --prefix ${sample_name} --threads 8 ${sample_name}_assembled/assembly.fasta
-	conda deactivate
 	cp ${sample_name}_annotation/*.gbff ./Annotated_genomes/${sample_name}.gbff
 done
